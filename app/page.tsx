@@ -1,131 +1,143 @@
-'use client'
+"use client";
 
-import { useState } from 'react';
+import { FormEvent, useEffect, useState } from "react";
 
-interface ShortenedUrl {
+type ShortenedUrl = {
+  id: string;
   original: string;
   short: string;
-  clicks: number;
-  createdAt: Date;
-}
+  createdAt: string;
+};
 
+const STORAGE_KEY = "book-url-shortener-v2";
+
+function makeCode() {
+  return Math.random().toString(36).slice(2, 8);
+}
 export default function URLShortener() {
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState("");
   const [urls, setUrls] = useState<ShortenedUrl[]>([]);
+  const [error, setError] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
 
-  const shortenUrl = () => {
-    if (!url.trim()) return;
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) setUrls(JSON.parse(saved) as ShortenedUrl[]);
+    } catch {
+      setUrls([]);
+    }
+  }, []);
 
-    const shortCode = Math.random().toString(36).substring(2, 8);
-    const shortUrl = `https://short.link/${shortCode}`;
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(urls));
+  }, [urls]);
 
-    setUrls([{
-      original: url,
-      short: shortUrl,
-      clicks: 0,
-      createdAt: new Date()
-    }, ...urls]);
+  function shortenUrl(event: FormEvent) {
+    event.preventDefault();
+    const trimmed = url.trim();
+    if (!trimmed) {
+      setError("Paste a destination before issuing a code.");
+      return;
+    }
 
-    setUrl('');
-  };
+    try {
+      const parsed = new URL(trimmed);
+      const next: ShortenedUrl = {
+        id: crypto.randomUUID(),
+        original: parsed.toString(),
+        short: `https://short.link/${makeCode()}`,
+        createdAt: new Date().toISOString(),
+      };
+      setUrls((current) => [next, ...current]);
+      setUrl("");
+      setError("");
+    } catch {
+      setError("That does not look like a complete URL. Include https://.");
+    }
+  }
 
-  const copyToClipboard = (shortUrl: string) => {
-    navigator.clipboard.writeText(shortUrl);
-    setCopied(shortUrl);
-    setTimeout(() => setCopied(null), 2000);
-  };
-
-  const deleteUrl = (shortUrl: string) => {
-    setUrls(urls.filter(u => u.short !== shortUrl));
-  };
+  async function copyToClipboard(short: string) {
+    try {
+      await navigator.clipboard.writeText(short);
+      setCopied(short);
+      window.setTimeout(() => setCopied(null), 1800);
+    } catch {
+      setError("Clipboard access is unavailable. Select the code manually.");
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-2">🔗 URL Shortener</h1>
-          <p className="text-gray-600 dark:text-gray-300">Make long links short and memorable</p>
+    <main className="link-desk">
+      <header className="link-header">
+        <div className="link-mark">B/11</div>
+        <div className="link-brand">
+          <strong>LINK REGISTRY</strong>
+          <span>SHORT ROUTES / LOCAL DESK</span>
         </div>
+        <div className="link-status"><i /> DEMO WORKSPACE · NO REDIRECT SERVER</div>
+      </header>
 
-        {/* URL Input */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 mb-8">
-          <div className="flex gap-4">
+      <section className="link-hero">
+        <div>
+          <p className="link-kicker">BOOKCHAOWALIT / ROUTING OFFICE</p>
+          <h1>Make the long<br /><em>route smaller.</em></h1>
+          <p className="link-intro-copy">Issue a temporary-looking code for a link you want close at hand. This registry stays in this browser.</p>
+        </div>
+        <div className="route-stamp" aria-label="Local browser utility">
+          <span>ROUTE</span>
+          <strong>LOCAL</strong>
+          <b>11 / 26</b>
+        </div>
+      </section>
+
+      <section className="issue-sheet" aria-label="Create a short link">
+        <div className="issue-heading">
+          <span>01 / ISSUE A CODE</span>
+          <h2>Address the destination.</h2>
+        </div>
+        <form className="issue-form" onSubmit={shortenUrl}>
+          <label>
+            <span>Destination URL</span>
             <input
               type="url"
               value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && shortenUrl()}
-              placeholder="Paste your long URL here..."
-              className="flex-1 px-6 py-4 text-lg border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 dark:bg-gray-700"
+              onChange={(event) => setUrl(event.target.value)}
+              placeholder="https://bookchaowalit.com/project"
+              aria-describedby={error ? "url-error" : undefined}
             />
-            <button
-              onClick={shortenUrl}
-              className="px-10 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl font-bold text-lg hover:shadow-lg transition transform hover:scale-105"
-            >
-              Shorten ✨
-            </button>
-          </div>
-        </div>
+          </label>
+          <button type="submit">Issue short code <b>↗</b></button>
+        </form>
+        {error ? <p className="form-error" id="url-error" role="alert">{error}</p> : <p className="issue-note">A local code is generated for this browser only. It does not redirect anyone.</p>}
+      </section>
 
-        {/* URL List */}
-        {urls.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
-            <div className="p-6 bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Your Links</h2>
-            </div>
-            <div className="divide-y dark:divide-gray-700">
-              {urls.map((item, i) => (
-                <div key={i} className="p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-500 truncate">{item.original}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <p className="text-lg font-semibold text-blue-600">{item.short}</p>
-                        <button
-                          onClick={() => copyToClipboard(item.short)}
-                          className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition"
-                        >
-                          {copied === item.short ? '✓ Copied!' : 'Copy'}
-                        </button>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => deleteUrl(item.short)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                  <div className="flex gap-6 text-sm text-gray-500">
-                    <span>📊 {item.clicks} clicks</span>
-                    <span>📅 {item.createdAt.toLocaleDateString()}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+      <section className="registry" aria-label="Short link registry">
+        <div className="registry-header">
+          <div>
+            <p className="link-kicker">02 / THE REGISTER</p>
+            <h2>Routes on file.</h2>
+          </div>
+          <span>{String(urls.length).padStart(2, "0")} ENTRIES</span>
+        </div>
+        {urls.length === 0 ? (
+          <div className="empty-register"><span>—</span><p>No routes issued yet. The next one will appear here.</p></div>
+        ) : (
+          <div className="route-list">
+            {urls.map((item, index) => (
+              <article className="route-row" key={item.id}>
+                <span className="route-number">{String(index + 1).padStart(2, "0")}</span>
+                <div className="route-target"><strong>{item.short}</strong><span>{item.original}</span></div>
+                <time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</time>
+                <button className="copy-route" onClick={() => copyToClipboard(item.short)}>{copied === item.short ? "COPIED" : "COPY"}</button>
+                <button className="remove-route" onClick={() => setUrls((current) => current.filter((route) => route.id !== item.id))}>REMOVE</button>
+              </article>
+            ))}
           </div>
         )}
+      </section>
 
-        {/* Features */}
-        <div className="grid grid-cols-3 gap-6 mt-12">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg text-center">
-            <div className="text-4xl mb-3">⚡</div>
-            <h3 className="font-bold text-gray-900 dark:text-white mb-2">Lightning Fast</h3>
-            <p className="text-sm text-gray-500">Instant shortening with one click</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg text-center">
-            <div className="text-4xl mb-3">📊</div>
-            <h3 className="font-bold text-gray-900 dark:text-white mb-2">Analytics</h3>
-            <p className="text-sm text-gray-500">Track clicks and engagement</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg text-center">
-            <div className="text-4xl mb-3">🔒</div>
-            <h3 className="font-bold text-gray-900 dark:text-white mb-2">Secure</h3>
-            <p className="text-sm text-gray-500">HTTPS encryption on all links</p>
-          </div>
-        </div>
-      </div>
-    </div>
+      <footer className="link-footer"><span>BOOKCHAOWALIT / URL SHORTENER</span><span>LOCAL STATE · DEMO-GRADE</span></footer>
+    </main>
   );
 }

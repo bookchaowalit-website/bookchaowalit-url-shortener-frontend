@@ -1,26 +1,76 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+:root { --paper: #eee9dd; --ink: #1e2834; --muted: #69737a; --blue: #4d7891; --red: #c75d3d; --line: #b8b5aa; --sheet: #202c39; }
+* { box-sizing: border-box; }
+html { background: var(--paper); }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif; }
+button, input { font: inherit; }
+button { cursor: pointer; }
+.link-desk { max-width: 1280px; margin: 0 auto; padding: 28px 42px 34px; }
+.link-header { display: flex; align-items: center; gap: 18px; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+.link-mark { display: grid; place-items: center; width: 44px; height: 38px; border: 1px solid var(--ink); color: var(--red); font: 700 11px/1 "Courier New", monospace; }
+.link-brand { display: grid; gap: 4px; }
+.link-brand strong { font: 700 12px/1 "Courier New", monospace; letter-spacing: .16em; }
+.link-brand span, .link-status, .link-footer, .link-kicker, .route-stamp, .issue-sheet span, .registry-header > span, .route-row time, .copy-route, .remove-route { font: 10px/1.2 "Courier New", monospace; letter-spacing: .13em; text-transform: uppercase; }
+.link-brand span { color: var(--muted); }
+.link-status { margin-left: auto; color: var(--muted); }
+.link-status i { display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%; background: #7eae88; }
+.link-hero { display: grid; grid-template-columns: 1fr 220px; gap: 40px; align-items: center; min-height: 445px; padding: 94px 0 78px; }
+.link-kicker { margin: 0 0 22px; color: var(--red); }
+.link-hero h1, .registry h2, .issue-heading h2 { margin: 0; font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif; font-weight: 400; letter-spacing: -.055em; }
+.link-hero h1 { max-width: 780px; font-size: clamp(4.4rem, 9vw, 8.2rem); line-height: .84; }
+.link-hero h1 em { color: var(--red); font-style: italic; }
+.link-intro-copy { max-width: 410px; margin: 34px 0 0; color: #50606b; font-size: 15px; line-height: 1.55; }
+.route-stamp { justify-self: end; display: grid; place-items: center; width: 158px; height: 158px; border: 1px solid var(--red); border-radius: 50%; color: var(--red); transform: rotate(7deg); }
+.route-stamp strong { font: 700 22px/1 "Avenir Next", sans-serif; letter-spacing: -.03em; }
+.route-stamp b { font-size: 9px; font-weight: 400; }
+.issue-sheet { display: grid; grid-template-columns: 1fr 1.55fr; gap: 42px; background: var(--sheet); color: #f4f0e7; padding: 38px 48px 34px; }
+.issue-heading h2 { font-size: clamp(2rem, 4vw, 3.5rem); line-height: .95; }
+.issue-form { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: end; }
+.issue-form label { display: grid; gap: 10px; }
+.issue-form input { width: 100%; border: 0; border-bottom: 1px solid #87919a; outline: none; background: transparent; color: #fff; padding: 12px 0; }
+.issue-form input::placeholder { color: #9da8af; }
+.issue-form input:focus { border-color: #e5ad64; }
+.issue-form button { border: 0; background: #e4ac63; color: var(--ink); padding: 15px 20px; font-weight: 700; }
+.issue-form button b { margin-left: 22px; font-size: 18px; }
+.issue-note, .form-error { grid-column: 2; margin: 14px 0 0; color: #aab4b8; font-size: 12px; line-height: 1.4; }
+.form-error { color: #f0ad88; }
+.registry { padding: 92px 0 55px; }
+.registry-header { display: flex; align-items: end; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 18px; }
+.registry-header h2 { font-size: clamp(2.6rem, 5vw, 5rem); line-height: .9; }
+.registry-header > span { color: var(--red); }
+.empty-register { display: grid; grid-template-columns: 70px 1fr; gap: 18px; border-bottom: 1px solid var(--line); padding: 31px 0; color: var(--muted); }
+.empty-register span { color: var(--red); font-size: 28px; }
+.empty-register p { margin: 0; font-size: 14px; }
+.route-row { display: grid; grid-template-columns: 50px minmax(0, 1fr) 100px 70px 68px; gap: 18px; align-items: center; border-bottom: 1px solid var(--line); padding: 22px 0; }
+.route-number { color: var(--red); font: 11px "Courier New", monospace; }
+.route-target { min-width: 0; display: grid; gap: 5px; }
+.route-target strong { overflow: hidden; color: var(--blue); font: 700 18px "Courier New", monospace; text-overflow: ellipsis; white-space: nowrap; }
+.route-target span { overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.route-row time { color: var(--muted); }
+.copy-route, .remove-route { border: 0; background: transparent; padding: 5px 0; color: var(--blue); font-size: 9px; }
+.remove-route { color: var(--red); }
+.link-footer { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 18px; color: var(--muted); }
+.link-footer span:last-child { color: var(--red); }
+@media (max-width: 760px) {
+  .link-desk { padding: 18px 20px 26px; }
+  .link-header { gap: 11px; }
+  .link-status { display: none; }
+  .link-hero { display: block; min-height: auto; padding: 72px 0 58px; }
+  .link-hero h1 { font-size: clamp(3.7rem, 17vw, 6rem); }
+  .route-stamp { margin: 45px 12px 0 auto; width: 118px; height: 118px; }
+  .issue-sheet { display: block; padding: 28px 22px; }
+  .issue-heading { margin-bottom: 30px; }
+  .issue-form { display: block; }
+  .issue-form button { margin-top: 22px; width: 100%; text-align: left; }
+  .issue-note, .form-error { margin-top: 15px; }
+  .registry { padding-top: 68px; }
+  .registry-header { align-items: start; gap: 20px; }
+  .registry-header h2 { font-size: 3.1rem; }
+  .route-row { grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; }
+  .route-row time { display: none; }
+  .copy-route, .remove-route { grid-row: 2; }
+  .copy-route { grid-column: 2; justify-self: start; }
+  .remove-route { grid-column: 3; }
+  .link-footer { display: grid; gap: 9px; }
 }

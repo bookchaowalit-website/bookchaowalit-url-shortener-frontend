@@ -19,6 +19,21 @@ See `README.md` for install and run instructions when present.
 - Not claimed as production-ready unless README and tests prove it.
 - Mobile smoke / emulator acceptance is separate and toolchain-dependent.
 
+<!-- impeccable:product-schema 1 -->
+
+## Platform
+
+web
+
+## Current product truth
+
+Inferred from the existing UI and README; user confirmation pending. This is a
+browser-only URL shortening demo: a visitor enters a URL, receives a random
+`short.link`-shaped code, copies or deletes it, and sees a local list. It has
+no redirect service, server persistence, real click analytics, accounts, or
+security guarantees. The interface must label these limits rather than imply
+production short links.
+
 ## Source README excerpt
 
 ```
